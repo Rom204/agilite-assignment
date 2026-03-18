@@ -65,3 +65,5 @@ src/
 - No test framework is configured
 - `src/server.ts` is unused legacy code
 - `api-test.http` contains manual HTTP test examples
+- `closeTicket` controller (`PATCH /:id/close`) is implemented but its route is commented out in `ticket.routes.ts`
+- Uses Express 5 (`^5.2.1`) — note breaking changes from Express 4 (e.g., async error handling built-in)

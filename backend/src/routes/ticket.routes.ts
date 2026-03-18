@@ -16,6 +16,6 @@ router.get('/:id', TicketController.getTicketById);
 router.post('/:id/replies', TicketController.addReply);
 
 // 5. Close a ticket (We'll add this logic soon!)
-// router.patch('/:id/close', TicketController.closeTicket);
+router.patch('/:id/close', TicketController.closeTicket);
 
 export default router;

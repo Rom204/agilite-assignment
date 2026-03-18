@@ -36,9 +36,13 @@ export const createTicket = async (req: Request, res: Response) => {
  * @desc    Get all tickets (for Admin Dashboard)
  * @route   GET /api/tickets
  */
-export const getAllTickets = async (_req: Request, res: Response) => {
+export const getAllTickets = async (req: Request, res: Response) => {
   try {
+    const { status } = req.query;
+    const whereClause = status ? { status: String(status) } : {};
+
     const tickets = await prisma.ticket.findMany({
+      where: whereClause,
       orderBy: { createdAt: 'desc' }, // Newest first
       include: {
         _count: {
@@ -119,10 +123,15 @@ export const addReply = async (req: Request, res: Response) => {
 };
 
 export const closeTicket = async (req: Request, res: Response) => {
+  try {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-  const ticket = await prisma.ticket.update({
-    where: { id },
-    data: { status: "closed" }
-  });
-  res.json(ticket);
+    const ticket = await prisma.ticket.update({
+      where: { id },
+      data: { status: "closed" }
+    });
+    return res.json(ticket);
+  } catch (error) {
+    console.error("Error closing ticket:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
 };
