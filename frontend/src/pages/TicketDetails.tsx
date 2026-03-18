@@ -7,6 +7,7 @@ import { Loader2, ArrowLeft, Send, CheckCircle, PackageOpen, User, ShieldAlert }
 import { API } from '../services/api';
 import type { Ticket, Product, Reply } from '../services/api';
 import { cn } from '../components/Navbar';
+import ProductCard from '../components/ProductCard';
 
 export default function TicketDetails() {
   const { id } = useParams<{ id: string }>();
@@ -20,6 +21,16 @@ export default function TicketDetails() {
   const [replyText, setReplyText] = useState('');
   const [submittingReply, setSubmittingReply] = useState(false);
   const [closingTicket, setClosingTicket] = useState(false);
+  const [previewProduct, setPreviewProduct] = useState<Product | null>(null);
+
+  useEffect(() => {
+    if (previewProduct) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [previewProduct]);
 
   useEffect(() => {
     const fetchDetails = async () => {
@@ -219,27 +230,44 @@ export default function TicketDetails() {
             </h3>
             
             {product ? (
-              <div className="group cursor-pointer">
-                <div className="aspect-square w-full bg-gray-100 dark:bg-gray-800 rounded-xl mb-4 overflow-hidden">
-                  <img 
-                    src={product.images[0]?.replace(/[\[\]"]/g, '')} 
-                    alt={product.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    onError={(e) => { (e.target as HTMLImageElement).src = 'https://via.placeholder.com/300'; }}
-                  />
-                </div>
-                <h4 className="font-medium text-primary line-clamp-2">{product.title}</h4>
-                <p className="text-primary-color font-bold mt-1">${product.price}</p>
-                <div className="mt-3 text-sm text-secondary bg-gray-50 dark:bg-gray-800 px-3 py-2 rounded-lg inline-block">
-                  {product.category.name}
-                </div>
+            <button 
+              onClick={() => setPreviewProduct(product)}
+              className="w-full text-left flex items-center gap-4 bg-gray-50 dark:bg-gray-800 hover:bg-white dark:hover:bg-slate-700 rounded-2xl p-4 border border-color transition-all shadow-sm hover:shadow-md hover:border-indigo-500/30 group"
+            >
+              <img 
+                src={product.images[0]?.replace(/[\[\]"]/g, '') || 'https://via.placeholder.com/80'} 
+                alt={product.title}
+                className="w-16 h-16 object-cover rounded-xl bg-white dark:bg-gray-700 group-hover:scale-105 transition-transform"
+                onError={(e) => { (e.target as HTMLImageElement).src = 'https://via.placeholder.com/80'; }}
+              />
+              <div className="flex-1 min-w-0">
+                <p className="text-secondary text-xs font-bold uppercase tracking-wider mb-1">Related Product</p>
+                <p className="font-semibold text-primary truncate leading-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{product.title}</p>
+                <p className="text-sm font-bold text-indigo-600 dark:text-indigo-400 mt-0.5">${product.price}</p>
               </div>
+            </button>
             ) : (
               <div className="text-sm text-secondary italic">Loading product data...</div>
             )}
           </div>
         </div>
       </div>
+
+      {previewProduct && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+          <div 
+            className="absolute inset-0 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300" 
+            onClick={() => setPreviewProduct(null)} 
+          />
+          <div className="relative z-10 w-full max-w-4xl max-h-[90vh] animate-in fade-in zoom-in-95 duration-300 overflow-y-auto custom-scrollbar rounded-3xl">
+            <ProductCard 
+              product={previewProduct} 
+              onClose={() => setPreviewProduct(null)}
+              className="w-full min-h-fit"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

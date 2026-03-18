@@ -2,11 +2,22 @@ import { useState, useEffect } from 'react';
 import { Search, Loader2 } from 'lucide-react';
 import { API } from '../services/api';
 import type { Product } from '../services/api';
+import ProductCard from '../components/ProductCard';
 
 export default function Catalog() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
+  useEffect(() => {
+    if (selectedProduct) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [selectedProduct]);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -67,7 +78,8 @@ export default function Catalog() {
           {filteredProducts.map(product => (
             <div 
               key={product.id} 
-              className="glass-panel !p-0 rounded-3xl overflow-hidden hover:shadow-2xl hover:shadow-primary-500/10 transition-all duration-300 group flex flex-col h-full transform hover:-translate-y-1"
+              onClick={() => setSelectedProduct(product)}
+              className="glass-panel !p-0 rounded-3xl overflow-hidden hover:shadow-2xl hover:shadow-indigo-500/10 transition-all duration-300 group flex flex-col h-full transform hover:-translate-y-1 cursor-pointer"
             >
               <div className="relative aspect-square overflow-hidden bg-gray-100 dark:bg-gray-900">
                 <img 
@@ -76,28 +88,45 @@ export default function Catalog() {
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
                   onError={(e) => { (e.target as HTMLImageElement).src = 'https://via.placeholder.com/300'; }}
                 />
-                <div className="absolute top-3 right-3 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm px-3 py-1 text-xs font-bold rounded-full text-primary shadow-sm border border-color">
+                <div className="absolute top-3 right-3 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm px-3 py-1 text-xs font-bold rounded-full text-indigo-600 shadow-sm border border-color">
                   {product.category.name}
                 </div>
               </div>
               
               <div className="p-5 flex flex-col flex-1">
-                <h3 className="font-bold text-lg text-primary line-clamp-2 mb-2 group-hover:text-primary-color transition-colors">
+                <h3 className="font-bold text-lg text-primary line-clamp-2 mb-2 group-hover:text-indigo-500 transition-colors">
                   {product.title}
                 </h3>
                 
                 <div className="mt-auto pt-4 flex items-center justify-between">
-                  <span className="text-2xl font-extrabold text-primary-color">
+                  <span className="text-2xl font-extrabold text-indigo-600 dark:text-indigo-400">
                     ${product.price}
                   </span>
                   
-                  <button className="px-5 py-2.5 bg-primary-50 dark:bg-primary-900/30 hover:bg-gradient-to-r hover:from-primary-color hover:to-purple-600 hover:text-white dark:hover:text-white text-primary-color font-bold rounded-xl text-sm transition-all duration-300 shadow-sm hover:shadow-md">
+                  <button className="px-5 py-2.5 bg-indigo-50 dark:bg-indigo-900/30 hover:bg-gradient-to-r hover:from-indigo-600 hover:to-purple-600 hover:text-white dark:hover:text-white text-indigo-600 font-bold rounded-xl text-sm transition-all duration-300 shadow-sm hover:shadow-md">
                     View
                   </button>
                 </div>
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Full Modal Overlay */}
+      {selectedProduct && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+          <div 
+            className="absolute inset-0 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300" 
+            onClick={() => setSelectedProduct(null)} 
+          />
+          <div className="relative z-10 w-full max-w-4xl max-h-[90vh] animate-in fade-in zoom-in-95 duration-300 overflow-y-auto custom-scrollbar rounded-3xl">
+            <ProductCard 
+              product={selectedProduct} 
+              onClose={() => setSelectedProduct(null)}
+              className="w-full min-h-fit"
+            />
+          </div>
         </div>
       )}
     </div>
