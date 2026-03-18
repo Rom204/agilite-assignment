@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BACKEND_URL = 'http://localhost:5000/api';
+const BACKEND_URL = 'http://localhost:5001/api';
 const FAKE_STORE_URL = 'https://api.escuelajs.co/api/v1';
 
 export const apiClient = axios.create({
