@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
-import { Loader2, MessageSquare, AlertCircle, CheckCircle2, UserCircle2 } from 'lucide-react';
+import { Loader2, MessageSquare, AlertCircle, CheckCircle2, UserCircle2, Ticket as TicketIcon, CircleDashed } from 'lucide-react';
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { useAuth } from '../context/AuthContext';
 import { API } from '../services/api';
 import type { Ticket, Product } from '../services/api';
@@ -12,7 +13,8 @@ export default function Dashboard() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [products, setProducts] = useState<Record<number, Product>>({});
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<'all' | 'open' | 'closed'>('all');
+  const [listFilter, setListFilter] = useState<'all' | 'open' | 'closed'>('all');
+  const [analyticsFilter, setAnalyticsFilter] = useState<'all' | 'open' | 'closed'>('all');
   const [emailInput, setEmailInput] = useState('');
 
   useEffect(() => {
@@ -26,7 +28,6 @@ export default function Dashboard() {
       setLoading(true);
       try {
         const queryParams = {
-          status: filter === 'all' ? undefined : filter,
           email: role === 'customer' ? currentEmail : undefined
         };
         const [ticketsRes, productsRes] = await Promise.all([
@@ -47,7 +48,12 @@ export default function Dashboard() {
       }
     };
     fetchData();
-  }, [filter, role, currentEmail]);
+  }, [role, currentEmail]);
+
+  const displayTickets = useMemo(() => {
+    if (listFilter === 'all') return tickets;
+    return tickets.filter(t => t.status === listFilter);
+  }, [tickets, listFilter]);
 
   if (role === 'customer' && !currentEmail) {
     return (
@@ -74,59 +80,167 @@ export default function Dashboard() {
     );
   }
 
+  const userTicketCounts = useMemo(() => {
+    if (role !== 'admin') return [];
+    const counts: Record<string, number> = {};
+    const filteredForAnalytics = analyticsFilter === 'all' ? tickets : tickets.filter(t => t.status === analyticsFilter);
+    filteredForAnalytics.forEach(t => {
+      const email = t.email || 'Unknown';
+      counts[email] = (counts[email] || 0) + 1;
+    });
+    return Object.entries(counts)
+      .map(([email, count]) => ({ 
+        name: email.split('@')[0], 
+        count, 
+        fullEmail: email 
+      }))
+      .sort((a, b) => b.count - a.count);
+  }, [tickets, role, analyticsFilter]);
+
+  const COLORS = ['#6366f1', '#8b5cf6', '#d946ef', '#f43f5e', '#facc15', '#10b981', '#0ea5e9'];
+
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4">
-        <div>
-          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-blue-600 dark:from-blue-400 to-purple-500 dark:to-purple-400 pb-1">
-            {role === 'admin' ? 'All Support Tickets' : 'My Support Tickets'}
-          </h1>
-          <p className="text-secondary font-medium mt-2">
-            {role === 'admin' ? 'Manage customer support requests' : `Viewing tickets for ${currentEmail}`}
-            {role === 'customer' && (
-              <button 
-                onClick={() => setEmail('')} 
-                className="ml-2 text-primary-color hover:underline text-sm"
-              >
-                (Change Email)
-              </button>
-            )}
-          </p>
-        </div>
-
-        {/* Filter Tabs */}
-        <div className="flex bg-gray-100 dark:bg-gray-800 p-1 rounded-lg border border-color self-start sm:self-auto">
-          {(['all', 'open', 'closed'] as const).map(status => (
-            <button
-              key={status}
-              onClick={() => setFilter(status)}
-              className={cn(
-                "px-4 py-1.5 rounded-md text-sm font-medium transition-all capitalize",
-                filter === status
-                  ? "bg-white dark:bg-gray-700 text-primary shadow-sm"
-                  : "text-secondary hover:text-primary"
-              )}
+      <div>
+        <h1 className="text-4xl md:text-5xl font-extrabold tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-blue-600 dark:from-blue-400 to-purple-500 dark:to-purple-400 pb-1">
+          {role === 'admin' ? 'All Support Tickets' : 'My Support Tickets'}
+        </h1>
+        <p className="text-secondary font-medium mt-2">
+          {role === 'admin' ? 'Manage customer support requests' : `Viewing tickets for ${currentEmail}`}
+          {role === 'customer' && (
+            <button 
+              onClick={() => setEmail('')} 
+              className="ml-2 text-primary-color hover:underline text-sm"
             >
-              {status}
+              (Change Email)
             </button>
-          ))}
-        </div>
+          )}
+        </p>
       </div>
+
+      {/* Customer Stats */}
+      {role === 'customer' && !loading && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 mt-6">
+          <div className="glass-panel p-6 rounded-3xl flex items-center gap-4 transition-transform hover:-translate-y-1 duration-300">
+            <div className="p-4 bg-indigo-500/10 text-indigo-500 rounded-2xl">
+              <TicketIcon className="w-8 h-8" />
+            </div>
+            <div>
+              <p className="text-secondary font-medium">Total Tickets</p>
+              <p className="text-3xl font-extrabold text-primary">{tickets.length}</p>
+            </div>
+          </div>
+          <div className="glass-panel p-6 rounded-3xl flex items-center gap-4 transition-transform hover:-translate-y-1 duration-300">
+            <div className="p-4 bg-amber-500/10 text-amber-500 rounded-2xl">
+              <CircleDashed className="w-8 h-8" />
+            </div>
+            <div>
+              <p className="text-secondary font-medium">Open Tickets</p>
+              <p className="text-3xl font-extrabold text-primary">{tickets.filter(t => t.status === 'open').length}</p>
+            </div>
+          </div>
+          <div className="glass-panel p-6 rounded-3xl flex items-center gap-4 transition-transform hover:-translate-y-1 duration-300">
+            <div className="p-4 bg-emerald-500/10 text-emerald-500 rounded-2xl">
+              <CheckCircle2 className="w-8 h-8" />
+            </div>
+            <div>
+              <p className="text-secondary font-medium">Closed Tickets</p>
+              <p className="text-3xl font-extrabold text-primary">{tickets.filter(t => t.status === 'closed').length}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Admin Analytics */}
+      {role === 'admin' && !loading && tickets.length > 0 && (
+        <div className="mb-8 mt-6 glass-panel p-6 sm:p-8 rounded-3xl shadow-xl animate-in fade-in duration-500">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+            <h2 className="text-xl font-bold text-primary">Tickets by User</h2>
+            <div className="flex bg-gray-100/50 dark:bg-gray-800/50 p-1 rounded-lg border border-color">
+              {(['all', 'open', 'closed'] as const).map(status => (
+                <button
+                  key={status}
+                  onClick={() => setAnalyticsFilter(status)}
+                  className={cn(
+                    "px-3 py-1 rounded-md text-xs font-bold transition-all capitalize",
+                    analyticsFilter === status
+                      ? "bg-white dark:bg-gray-700 text-indigo-600 dark:text-indigo-400 shadow-sm"
+                      : "text-secondary hover:text-primary"
+                  )}
+                >
+                  {status}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="h-72 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={userTicketCounts}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={70}
+                  outerRadius={100}
+                  paddingAngle={5}
+                  dataKey="count"
+                  nameKey="name"
+                  stroke="none"
+                  animationDuration={1500}
+                >
+                  {userTicketCounts.map((_, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip 
+                  contentStyle={{ borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(15, 23, 42, 0.9)', color: '#f8fafc', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }}
+                  itemStyle={{ color: '#e2e8f0', fontWeight: 'bold' }}
+                  formatter={(value: any, _name: any, props: any) => [value, props.payload.fullEmail]}
+                />
+                <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px' }} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
+
+      {/* Ticket List Header and Tabs */}
+      {!loading && tickets.length > 0 && (
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mt-8 mb-4 border-t border-color pt-8">
+          <h2 className="text-2xl font-bold text-primary">Ticket Directory</h2>
+          <div className="flex bg-gray-100 dark:bg-gray-800 p-1 rounded-lg border border-color">
+            {(['all', 'open', 'closed'] as const).map(status => (
+              <button
+                key={status}
+                onClick={() => setListFilter(status)}
+                className={cn(
+                  "px-4 py-1.5 rounded-md text-sm font-medium transition-all capitalize",
+                  listFilter === status
+                    ? "bg-white dark:bg-gray-700 text-primary shadow-sm"
+                    : "text-secondary hover:text-primary"
+                )}
+              >
+                {status}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {loading ? (
         <div className="flex flex-col items-center justify-center h-64 text-secondary">
           <Loader2 className="w-8 h-8 animate-spin mb-4 text-primary-color" />
           <p>Loading tickets...</p>
         </div>
-      ) : tickets.length === 0 ? (
+      ) : displayTickets.length === 0 ? (
         <div className="glass-panel rounded-3xl p-16 text-center border-dashed border-2 flex flex-col items-center justify-center">
           <CheckCircle2 className="w-12 h-12 text-green-500 mb-4 opacity-50" />
           <h3 className="text-xl font-medium text-primary mb-1">No Tickets Found</h3>
-          <p className="text-secondary">You don't have any {filter !== 'all' ? filter : ''} tickets at the moment.</p>
+          <p className="text-secondary">You don't have any {listFilter !== 'all' ? listFilter : ''} tickets at the moment.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {tickets.map(ticket => (
+          {displayTickets.map(ticket => (
             <Link
               key={ticket.id}
               to={`/ticket/${ticket.id}`}
