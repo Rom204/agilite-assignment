@@ -1,0 +1,40 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// 2. The Ticket: The "Parent" container for a support request
+model Ticket {
+  id          String   @id @default(cuid()) // Secure, unique ID
+  email       String   // Acts as our user identifier since we have no Auth
+  name        String
+  subject     String
+  message     String
+  productId   Int      // Links to the item from the Fake Store API
+  status      String   @default("open")    // Can be "open" or "closed"
+  createdAt   DateTime @default(now())
+  
+  // Relationship: A Ticket can have many Replies
+  replies     Reply[]
+}
+
+// 3. The Reply: The "Children" or chat messages inside a ticket
+model Reply {
+  id        String   @id @default(cuid())
+  message   String
+  isAdmin   Boolean  @default(false) // true if you sent it, false if customer sent it
+  createdAt DateTime @default(now())
+  
+  // Relationship: Every Reply must belong to one specific Ticket
+  ticketId  String
+  ticket    Ticket   @relation(fields: [ticketId], references: [id])
+}
