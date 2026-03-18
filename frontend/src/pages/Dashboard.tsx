@@ -1,23 +1,36 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
-import { Loader2, MessageSquare, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Loader2, MessageSquare, AlertCircle, CheckCircle2, UserCircle2 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import { API } from '../services/api';
 import type { Ticket, Product } from '../services/api';
 import { cn } from '../components/Navbar';
 
 export default function Dashboard() {
+  const { role, email: currentEmail, setEmail } = useAuth();
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [products, setProducts] = useState<Record<number, Product>>({});
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'open' | 'closed'>('all');
+  const [emailInput, setEmailInput] = useState('');
 
   useEffect(() => {
+    // If customer and no email set, don't fetch yet
+    if (role === 'customer' && !currentEmail) {
+      setLoading(false);
+      return;
+    }
+
     const fetchData = async () => {
       setLoading(true);
       try {
+        const queryParams = {
+          status: filter === 'all' ? undefined : filter,
+          email: role === 'customer' ? currentEmail : undefined
+        };
         const [ticketsRes, productsRes] = await Promise.all([
-          API.getTickets(filter === 'all' ? undefined : filter),
+          API.getTickets(queryParams),
           API.getProducts()
         ]);
 
@@ -34,14 +47,51 @@ export default function Dashboard() {
       }
     };
     fetchData();
-  }, [filter]);
+  }, [filter, role, currentEmail]);
+
+  if (role === 'customer' && !currentEmail) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[50vh] animate-in fade-in duration-500">
+        <div className="glass-panel p-8 rounded-2xl max-w-md w-full text-center">
+          <UserCircle2 className="w-16 h-16 text-primary-color mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-primary mb-2">View Your Tickets</h2>
+          <p className="text-secondary mb-6">Please enter your email address to view the history of tickets you have opened.</p>
+          <form onSubmit={(e) => { e.preventDefault(); setEmail(emailInput); }} className="space-y-4">
+            <input 
+              type="email" 
+              required
+              placeholder="name@example.com"
+              value={emailInput}
+              onChange={e => setEmailInput(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border border-color bg-gray-50 dark:bg-gray-800 focus:ring-2 focus:ring-primary-color outline-none transition-all"
+            />
+            <button type="submit" className="w-full bg-primary-color hover:bg-primary-hover text-white py-3 rounded-xl font-medium transition-colors">
+              Continue
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-primary">Tickets Dashboard</h1>
-          <p className="text-secondary mt-1">Manage customer support requests</p>
+          <h1 className="text-3xl font-extrabold tracking-tight text-primary">
+            {role === 'admin' ? 'All Support Tickets' : 'My Support Tickets'}
+          </h1>
+          <p className="text-secondary mt-1">
+            {role === 'admin' ? 'Manage customer support requests' : `Viewing tickets for ${currentEmail}`}
+            {role === 'customer' && (
+              <button 
+                onClick={() => setEmail('')} 
+                className="ml-2 text-primary-color hover:underline text-sm"
+              >
+                (Change Email)
+              </button>
+            )}
+          </p>
         </div>
 
         {/* Filter Tabs */}

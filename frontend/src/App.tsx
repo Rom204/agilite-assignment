@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 
 import Layout from './components/Layout';
+import { AuthProvider } from './context/AuthContext';
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
 import TicketDetails from './pages/TicketDetails';
@@ -9,8 +10,9 @@ import Catalog from './pages/Catalog';
 
 function App() {
   return (
-    <BrowserRouter>
-      <Toaster position="bottom-right" toastOptions={{
+    <AuthProvider>
+      <BrowserRouter>
+        <Toaster position="bottom-right" toastOptions={{
         className: 'dark:bg-gray-800 dark:text-white',
         style: { borderRadius: '10px', background: '#333', color: '#fff' }
       }} />
@@ -23,6 +25,7 @@ function App() {
         </Route>
       </Routes>
     </BrowserRouter>
+    </AuthProvider>
   );
 }
 

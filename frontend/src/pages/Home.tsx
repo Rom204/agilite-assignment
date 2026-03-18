@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
+import { useAuth } from '../context/AuthContext';
 import { API } from '../services/api';
 import type { Product } from '../services/api';
 import ProductSelectorModal from '../components/ProductSelectorModal';
@@ -7,6 +8,7 @@ import { Loader2, PackageSearch } from 'lucide-react';
 import { cn } from '../components/Navbar';
 
 export default function Home() {
+  const { setEmail } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   
@@ -33,6 +35,9 @@ export default function Home() {
     try {
       await API.createTicket({ ...formData, productId: selectedProduct.id });
       toast.success('Ticket created successfully!');
+      
+      // Save customer email for Dashboard view
+      setEmail(formData.email);
       
       // Reset form
       setFormData({ name: '', email: '', subject: '', message: '' });

@@ -1,5 +1,6 @@
 import { Link, NavLink } from 'react-router-dom';
-import { Ticket, Search, ListTodo, Moon, Sun } from 'lucide-react';
+import { Ticket, Search, ListTodo, Moon, Sun, ShieldCheck, User } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import { useEffect, useState } from 'react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -11,6 +12,7 @@ export function cn(...inputs: (string | undefined | null | false)[]) {
 
 export default function Navbar() {
   const [isDark, setIsDark] = useState(false);
+  const { role, setRole } = useAuth();
 
   useEffect(() => {
     // Check initial dark mode preference
@@ -57,7 +59,29 @@ export default function Navbar() {
             </nav>
           </div>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-4">
+            {/* Role Toggle */}
+            <div className="flex items-center gap-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg border border-color">
+              <button
+                onClick={() => setRole('customer')}
+                className={cn(
+                  "flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium transition-all",
+                  role === 'customer' ? "bg-white dark:bg-gray-700 text-primary shadow-sm" : "text-secondary hover:text-primary"
+                )}
+              >
+                <User className="w-4 h-4" /> Customer
+              </button>
+              <button
+                onClick={() => setRole('admin')}
+                className={cn(
+                  "flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium transition-all",
+                  role === 'admin' ? "bg-white dark:bg-gray-700 text-primary shadow-sm" : "text-secondary hover:text-primary"
+                )}
+              >
+                <ShieldCheck className="w-4 h-4" /> Admin
+              </button>
+            </div>
+
             <button
               onClick={toggleDarkMode}
               className="p-2 rounded-full hover:bg-secondary text-secondary transition-colors focus:outline-none focus:ring-2 focus:ring-primary-color focus:ring-offset-2"

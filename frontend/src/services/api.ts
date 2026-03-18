@@ -51,7 +51,7 @@ export const API = {
   getProductById: (id: number) => storeClient.get<Product>(`/products/${id}`),
   
   createTicket: (data: Partial<Ticket>) => apiClient.post<Ticket>('/tickets', data),
-  getTickets: (status?: string) => apiClient.get<Ticket[]>('/tickets', { params: { status } }),
+  getTickets: (params?: { status?: string, email?: string }) => apiClient.get<Ticket[]>('/tickets', { params }),
   getTicketById: (id: string) => apiClient.get<Ticket & { replies: Reply[] }>(`/tickets/${id}`),
   addReply: (id: string, message: string, isAdmin = false) => apiClient.post<Reply>(`/tickets/${id}/replies`, { message, isAdmin }),
   closeTicket: (id: string) => apiClient.patch<Ticket>(`/tickets/${id}/close`),

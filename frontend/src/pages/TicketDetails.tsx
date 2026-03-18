@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { toast } from 'react-hot-toast';
+import { useAuth } from '../context/AuthContext';
 import { Loader2, ArrowLeft, Send, CheckCircle, PackageOpen, User, ShieldAlert } from 'lucide-react';
 import { API } from '../services/api';
 import type { Ticket, Product, Reply } from '../services/api';
@@ -10,6 +11,7 @@ import { cn } from '../components/Navbar';
 export default function TicketDetails() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { role } = useAuth();
   
   const [ticket, setTicket] = useState<(Ticket & { replies: Reply[] }) | null>(null);
   const [product, setProduct] = useState<Product | null>(null);
@@ -45,9 +47,7 @@ export default function TicketDetails() {
     
     setSubmittingReply(true);
     try {
-      // For this assignment, we mimic an admin reply by setting isAdmin=true, 
-      // or we can just send it as a customer (false). Let's let the user act as Admin for the showcase.
-      const { data: newReply } = await API.addReply(id, replyText, true);
+      const { data: newReply } = await API.addReply(id, replyText, role === 'admin');
       setTicket(prev => prev ? { ...prev, replies: [...prev.replies, newReply] } : null);
       setReplyText('');
       toast.success('Reply submitted');
@@ -101,10 +101,10 @@ export default function TicketDetails() {
           onClick={() => navigate('/dashboard')}
           className="flex items-center gap-2 text-secondary hover:text-primary transition-colors font-medium"
         >
-          <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+          <ArrowLeft className="w-4 h-4" /> Back to Tickets
         </button>
         
-        {ticket.status === 'open' && (
+        {ticket.status === 'open' && role === 'admin' && (
           <button
             onClick={handleCloseTicket}
             disabled={closingTicket}

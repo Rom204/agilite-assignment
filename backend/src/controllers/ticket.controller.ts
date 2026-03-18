@@ -38,8 +38,10 @@ export const createTicket = async (req: Request, res: Response) => {
  */
 export const getAllTickets = async (req: Request, res: Response) => {
   try {
-    const { status } = req.query;
-    const whereClause = status ? { status: String(status) } : {};
+    const { status, email } = req.query;
+    const whereClause: any = {};
+    if (status) whereClause.status = String(status);
+    if (email) whereClause.email = String(email);
 
     const tickets = await prisma.ticket.findMany({
       where: whereClause,
