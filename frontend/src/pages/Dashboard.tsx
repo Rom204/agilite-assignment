@@ -52,10 +52,10 @@ export default function Dashboard() {
   if (role === 'customer' && !currentEmail) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] animate-in fade-in duration-500">
-        <div className="glass-panel p-8 rounded-2xl max-w-md w-full text-center">
-          <UserCircle2 className="w-16 h-16 text-primary-color mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-primary mb-2">View Your Tickets</h2>
-          <p className="text-secondary mb-6">Please enter your email address to view the history of tickets you have opened.</p>
+        <div className="glass-panel p-8 md:p-10 rounded-3xl max-w-md w-full text-center shadow-2xl shadow-primary-900/5">
+          <UserCircle2 className="w-20 h-20 text-primary-color mx-auto mb-5 drop-shadow-md" />
+          <h2 className="text-3xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-600 dark:from-blue-400 to-purple-600 dark:to-purple-400 mb-2">View Your Tickets</h2>
+          <p className="text-secondary mb-8 font-medium">Please enter your email address to view the history of tickets you have opened.</p>
           <form onSubmit={(e) => { e.preventDefault(); setEmail(emailInput); }} className="space-y-4">
             <input 
               type="email" 
@@ -63,7 +63,7 @@ export default function Dashboard() {
               placeholder="name@example.com"
               value={emailInput}
               onChange={e => setEmailInput(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-color bg-gray-50 dark:bg-gray-800 focus:ring-2 focus:ring-primary-color outline-none transition-all"
+              className="w-full px-4 py-3 rounded-xl border border-color bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm text-primary placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-2 focus:ring-primary-color/50 focus:border-primary-color outline-none transition-all shadow-inner shadow-black/5 dark:shadow-black/20"
             />
             <button type="submit" className="w-full bg-primary-color hover:bg-primary-hover text-white py-3 rounded-xl font-medium transition-colors">
               Continue
@@ -78,10 +78,10 @@ export default function Dashboard() {
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-primary">
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-blue-600 dark:from-blue-400 to-purple-500 dark:to-purple-400 pb-1">
             {role === 'admin' ? 'All Support Tickets' : 'My Support Tickets'}
           </h1>
-          <p className="text-secondary mt-1">
+          <p className="text-secondary font-medium mt-2">
             {role === 'admin' ? 'Manage customer support requests' : `Viewing tickets for ${currentEmail}`}
             {role === 'customer' && (
               <button 
@@ -119,7 +119,7 @@ export default function Dashboard() {
           <p>Loading tickets...</p>
         </div>
       ) : tickets.length === 0 ? (
-        <div className="glass-panel rounded-2xl p-12 text-center border-dashed border-2 flex flex-col items-center justify-center">
+        <div className="glass-panel rounded-3xl p-16 text-center border-dashed border-2 flex flex-col items-center justify-center">
           <CheckCircle2 className="w-12 h-12 text-green-500 mb-4 opacity-50" />
           <h3 className="text-xl font-medium text-primary mb-1">No Tickets Found</h3>
           <p className="text-secondary">You don't have any {filter !== 'all' ? filter : ''} tickets at the moment.</p>
@@ -130,7 +130,7 @@ export default function Dashboard() {
             <Link
               key={ticket.id}
               to={`/ticket/${ticket.id}`}
-              className="glass-panel rounded-xl p-5 block hover:-translate-y-1 hover:shadow-lg transition-all duration-300 border border-color border-transparent hover:border-primary-color/30 group"
+              className="glass-panel rounded-2xl p-6 block hover:-translate-y-1.5 hover:shadow-xl hover:shadow-primary-500/10 transition-all duration-300 group hover:border-primary-400/50"
             >
               <div className="flex justify-between items-start mb-3">
                 <span className={cn(

@@ -33,15 +33,15 @@ export default function Navbar() {
   );
 
   return (
-    <header className="sticky top-0 z-50 glass-panel border-b border-color transition-colors duration-300">
+    <header className="sticky top-0 z-50 bg-white/60 dark:bg-slate-900/60 backdrop-blur-2xl border-b border-white/20 dark:border-white/10 shadow-sm transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex">
             <Link to="/" className="flex flex-shrink-0 items-center gap-2 group">
-              <div className="p-2 bg-primary-color rounded-lg text-white group-hover:scale-105 transition-transform">
+              <div className="p-2.5 bg-gradient-to-br from-blue-600 dark:from-blue-500 to-purple-600 dark:to-purple-500 rounded-xl text-white shadow-lg shadow-primary-500/30 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
                 <Ticket className="w-5 h-5" />
               </div>
-              <span className="font-bold text-xl tracking-tight hidden sm:block text-primary">
+              <span className="font-extrabold text-xl tracking-tight hidden sm:block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 dark:from-blue-400 to-purple-600 dark:to-purple-400">
                 ModernTicketing
               </span>
             </Link>

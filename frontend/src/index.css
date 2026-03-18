@@ -1,70 +1,78 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary-50: #eff6ff;
-  --color-primary-100: #dbeafe;
-  --color-primary-200: #bfdbfe;
-  --color-primary-300: #93c5fd;
-  --color-primary-400: #60a5fa;
-  --color-primary-500: #3b82f6;
-  --color-primary-600: #2563eb;
-  --color-primary-700: #1d4ed8;
-  --color-primary-800: #1e40af;
-  --color-primary-900: #1e3a8a;
+  /* Vibrant, modern Indigo/Violet SaaS palette */
+  --color-primary-50: #eef2ff;
+  --color-primary-100: #e0e7ff;
+  --color-primary-200: #c7d2fe;
+  --color-primary-300: #a5b4fc;
+  --color-primary-400: #818cf8;
+  --color-primary-500: #6366f1; /* Main Indigo */
+  --color-primary-600: #4f46e5;
+  --color-primary-700: #4338ca;
+  --color-primary-800: #3730a3;
+  --color-primary-900: #312e81;
   
-  --color-dark-bg: #111827;
-  --color-dark-card: #1f2937;
-  --color-dark-border: #374151;
-  --color-dark-text: #f9fafb;
-  --color-dark-muted: #9ca3af;
+  --color-dark-bg: #0f172a; /* Slate 900 for a rich deep blue/black */
+  --color-dark-card: rgba(30, 41, 59, 0.7); /* Slate 800 with opacity */
+  --color-dark-border: rgba(255, 255, 255, 0.1);
+  --color-dark-text: #f8fafc;
+  --color-dark-muted: #94a3b8;
 }
+
+/* Enforce class-based dark mode in Tailwind v4 */
+@custom-variant dark (&:is(.dark *));
 
 @layer base {
   :root {
-    --bg-primary: #ffffff;
-    --bg-secondary: #f3f4f6;
-    --text-primary: #111827;
-    --text-secondary: #4b5563;
-    --border-color: #e5e7eb;
+    --bg-primary: #f8fafc;
+    --bg-secondary: transparent;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --border-color: rgba(0, 0, 0, 0.08);
     --primary-color: var(--color-primary-600);
+    --primary-content: #ffffff;
     --primary-hover: var(--color-primary-700);
   }
 
   .dark {
     --bg-primary: var(--color-dark-bg);
-    --bg-secondary: var(--color-dark-card);
+    --bg-secondary: transparent;
     --text-primary: var(--color-dark-text);
     --text-secondary: var(--color-dark-muted);
     --border-color: var(--color-dark-border);
     --primary-color: var(--color-primary-500);
+    --primary-content: #ffffff;
     --primary-hover: var(--color-primary-400);
   }
 }
 
 body {
-  background-color: var(--bg-secondary);
+  background-color: var(--bg-primary);
   color: var(--text-primary);
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: background-color 0.4s ease, color 0.4s ease;
 }
 
-/* Glassmorphism utilities */
+/* Premium Glassmorphism */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
 }
 
 .dark .glass-panel {
-  background: rgba(31, 41, 55, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.15);
 }
 
-/* Custom Scrollbar */
+/* Custom Scrollbar - Minimal */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;

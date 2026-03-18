@@ -49,17 +49,17 @@ export default function Home() {
     }
   };
 
-  const inputStyle = "w-full px-4 py-2 rounded-lg border border-color bg-gray-50 dark:bg-gray-800 text-primary focus:outline-none focus:ring-2 focus:ring-primary-color focus:border-transparent transition-all";
+  const inputStyle = "w-full px-4 py-3 rounded-xl border border-color bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm text-primary placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-color/50 focus:border-primary-color transition-all shadow-inner shadow-black/5 dark:shadow-black/20";
   const labelStyle = "block text-sm font-medium text-secondary mb-1";
 
   return (
     <div className="max-w-3xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="mb-8 text-center sm:text-left">
-        <h1 className="text-3xl font-extrabold tracking-tight text-primary">Submit a <span className="text-primary-color">Support Ticket</span></h1>
-        <p className="text-secondary mt-2 text-lg">We're here to help. Fill out the details below so we can assist you.</p>
+      <div className="mb-10 text-center sm:text-left">
+        <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-blue-600 dark:from-blue-400 via-indigo-500 to-purple-600 dark:to-purple-400 pb-2">Submit a Support Ticket</h1>
+        <p className="text-secondary mt-3 text-lg md:text-xl font-medium max-w-2xl">We're here to help. Fill out the details below to open a priority support request.</p>
       </div>
 
-      <div className="glass-panel rounded-2xl p-6 sm:p-8 shadow-sm">
+      <div className="glass-panel rounded-3xl p-6 sm:p-10 shadow-2xl shadow-primary-900/5">
         <form onSubmit={handleSubmit} className="space-y-6">
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -162,7 +162,7 @@ export default function Home() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-6 py-3 rounded-lg bg-primary-color hover:bg-primary-hover text-white font-medium flex items-center gap-2 transition-all disabled:opacity-70 disabled:cursor-not-allowed transform hover:-translate-y-0.5 shadow-md shadow-blue-500/20"
+              className="px-8 py-3.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold flex items-center gap-2 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed transform hover:-translate-y-1 shadow-xl shadow-indigo-500/25 hover:shadow-indigo-500/40"
             >
               {isSubmitting ? (
                 <>

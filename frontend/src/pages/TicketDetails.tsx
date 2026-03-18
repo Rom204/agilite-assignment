@@ -120,7 +120,7 @@ export default function TicketDetails() {
         
         {/* Main conversation column */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="glass-panel rounded-2xl p-6 sm:p-8">
+          <div className="glass-panel rounded-3xl p-6 sm:p-10 shadow-xl shadow-black/5">
             <h1 className="text-2xl font-bold text-primary mb-1">{ticket.subject}</h1>
             <div className="flex items-center gap-3 text-sm text-secondary mb-8 pb-6 border-b border-color">
                <span className={cn(
@@ -137,7 +137,7 @@ export default function TicketDetails() {
             <div className="space-y-6">
               {/* Original Message */}
               <div className="flex gap-4">
-                <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0 text-blue-600 dark:text-blue-400">
+                <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center flex-shrink-0 text-primary">
                   <User className="w-5 h-5" />
                 </div>
                 <div className="flex-1">
@@ -156,8 +156,8 @@ export default function TicketDetails() {
                   <div className={cn(
                     "w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0",
                     reply.isAdmin 
-                      ? "bg-primary-600 text-white" 
-                      : "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400"
+                      ? "bg-primary-color text-[var(--primary-content)]" 
+                      : "bg-gray-200 dark:bg-gray-700 text-primary"
                   )}>
                     {reply.isAdmin ? <ShieldAlert className="w-5 h-5" /> : <User className="w-5 h-5" />}
                   </div>
@@ -165,8 +165,8 @@ export default function TicketDetails() {
                     <div className={cn(
                       "px-5 py-4 text-sm sm:text-base whitespace-pre-wrap shadow-sm max-w-[90%]",
                       reply.isAdmin 
-                        ? "bg-primary-600 text-white rounded-2xl rounded-tr-none" 
-                        : "bg-gray-50 dark:bg-gray-800 rounded-2xl rounded-tl-none border border-color text-primary"
+                        ? "bg-gradient-to-tr from-indigo-600 dark:from-indigo-400 to-purple-600 dark:to-purple-500 text-white rounded-3xl rounded-tr-sm" 
+                        : "bg-white dark:bg-gray-800 rounded-3xl rounded-tl-sm border border-color text-primary shadow-sm"
                     )}>
                       {reply.message}
                     </div>
@@ -187,14 +187,14 @@ export default function TicketDetails() {
                     value={replyText}
                     onChange={e => setReplyText(e.target.value)}
                     placeholder="Type your reply..."
-                    className="w-full px-4 py-3 rounded-xl border border-color bg-gray-50 dark:bg-gray-800 text-primary focus:outline-none focus:ring-2 focus:ring-primary-color resize-none mb-3"
+                    className="w-full px-4 py-3 rounded-xl border border-color bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm text-primary placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-color/50 focus:border-primary-color transition-all shadow-inner shadow-black/5 dark:shadow-black/20 resize-none mb-3"
                     rows={4}
                   />
                   <div className="flex justify-end">
                     <button
                       type="submit"
                       disabled={submittingReply || !replyText.trim()}
-                      className="px-5 py-2.5 rounded-lg bg-primary-color hover:bg-primary-hover text-white font-medium flex items-center gap-2 transition-all disabled:opacity-50"
+                      className="px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 dark:from-indigo-500 to-purple-600 dark:to-purple-500 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold flex items-center gap-2 transition-all duration-300 shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 disabled:opacity-50 transform hover:-translate-y-0.5"
                     >
                       {submittingReply ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                       Send Reply
@@ -213,7 +213,7 @@ export default function TicketDetails() {
 
         {/* Sidebar Product Details */}
         <div className="lg:col-span-1">
-          <div className="glass-panel rounded-2xl p-6 sticky top-24">
+          <div className="glass-panel rounded-3xl p-6 sm:p-8 sticky top-24 shadow-xl shadow-black/5">
             <h3 className="font-semibold text-lg text-primary mb-4 flex items-center gap-2 border-b border-color pb-3">
               <PackageOpen className="w-5 h-5 text-primary-color" /> Related Product
             </h3>
