@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
-import { Loader2, MessageSquare, AlertCircle, CheckCircle2, UserCircle2, Ticket as TicketIcon, CircleDashed } from 'lucide-react';
+import { Loader2, MessageSquare, AlertCircle, CheckCircle2, UserCircle2, Ticket as TicketIcon, CircleDashed, ShieldAlert } from 'lucide-react';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../context/AuthContext';
@@ -83,7 +83,7 @@ export default function Dashboard() {
           <h2 className="text-3xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-600 dark:from-blue-400 to-purple-600 dark:to-purple-400 mb-2">Welcome Back</h2>
           <p className="text-secondary mb-8 font-medium">Please sign in with Google to securely access your support dashboard.</p>
           
-          <div className="flex justify-center">
+          <div className="bg-white/50 dark:bg-slate-800/50 p-6 rounded-3xl border border-color shadow-lg flex flex-col justify-center items-center w-full max-w-sm mx-auto mt-2 gap-3">
             <GoogleLogin
               onSuccess={async (credentialResponse) => {
                 try {
@@ -101,6 +101,26 @@ export default function Dashboard() {
               theme="filled_blue"
               shape="pill"
             />
+            
+            <div className="w-full flex items-center gap-3 text-secondary my-1">
+              <div className="flex-1 h-px bg-gray-300 dark:bg-gray-700"></div>
+              <span className="text-xs font-semibold uppercase tracking-wider">Or</span>
+              <div className="flex-1 h-px bg-gray-300 dark:bg-gray-700"></div>
+            </div>
+
+            <button
+               onClick={async () => {
+                 try {
+                   const res = await API.demoAdminLogin();
+                   login(res.data.token);
+                 } catch (error) {
+                   console.error("Demo login failed:", error);
+                 }
+               }}
+               className="w-full py-2.5 px-4 bg-slate-900 hover:bg-slate-800 dark:bg-slate-700 dark:hover:bg-slate-600 text-white font-semibold rounded-full transition-all flex justify-center items-center gap-2 text-sm shadow-md"
+            >
+               <ShieldAlert className="w-4 h-4" /> Login as Demo Admin
+             </button>
           </div>
         </div>
       </div>

@@ -57,4 +57,20 @@ router.post('/google', async (req: Request, res: Response): Promise<any> => {
   }
 });
 
+router.post('/demo-admin', (req: Request, res: Response) => {
+  const jwtPayload = { 
+    email: 'recruiter@agilite.com', 
+    role: 'admin', 
+    name: 'Recruiter Admin', 
+    picture: 'https://ui-avatars.com/api/?name=Recruiter+Admin&background=0D8ABC&color=fff' 
+  };
+  const sessionToken = jwt.sign(jwtPayload, process.env.JWT_SECRET as string, { expiresIn: '7d' });
+
+  res.json({
+    message: 'Demo Admin authenticated',
+    token: sessionToken,
+    user: jwtPayload,
+  });
+});
+
 export default router;

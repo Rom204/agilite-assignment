@@ -72,6 +72,7 @@ export interface Reply {
 
 export const API = {
   verifyGoogleToken: (credential: string) => apiClient.post<{ token: string; user: any }>('/auth/google', { credential }),
+  demoAdminLogin: () => apiClient.post<{ token: string; user: any }>('/auth/demo-admin'),
 
   getProducts: () => storeClient.get<Product[]>('/products'),
   getProductById: (id: number) => storeClient.get<Product>(`/products/${id}`),
