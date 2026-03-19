@@ -104,10 +104,17 @@ export default function ProductSelectorModal({ isOpen, onClose, onSelect }: Prop
                       className="flex items-start gap-4 p-3 rounded-2xl border border-color hover:border-indigo-500/50 dark:hover:border-indigo-500/50 hover:shadow-lg transition-all text-left bg-white dark:bg-slate-800/50 group"
                     >
                       <img 
-                        src={product.images[0]?.replace(/[\[\]"]/g, '') || 'https://via.placeholder.com/150'} 
+                        src={product.images[0]?.replace(/[\[\]"]/g, '') || 'https://placehold.co/150x150/e2e8f0/475569?text=No+Image'} 
                         alt={product.title}
                         className="w-16 h-16 object-cover rounded-xl group-hover:scale-105 transition-transform bg-gray-100 dark:bg-slate-900 border border-color shrink-0"
-                        onError={(e) => { (e.target as HTMLImageElement).src = 'https://via.placeholder.com/150'; }}
+                        onError={(e) => { 
+                          const target = e.target as HTMLImageElement;
+                          target.onerror = () => {
+                            target.onerror = null;
+                            target.src = 'https://placehold.co/150x150/e2e8f0/475569?text=No+Image'; 
+                          };
+                          target.src = product.category.image;
+                        }}
                       />
                       <div className="flex-1 min-w-0 flex flex-col justify-center py-1">
                         <p className="font-bold text-primary text-sm line-clamp-2 leading-tight mb-1 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">

@@ -235,10 +235,17 @@ export default function TicketDetails() {
               className="w-full text-left flex items-center gap-4 bg-gray-50 dark:bg-gray-800 hover:bg-white dark:hover:bg-slate-700 rounded-2xl p-4 border border-color transition-all shadow-sm hover:shadow-md hover:border-indigo-500/30 group"
             >
               <img 
-                src={product.images[0]?.replace(/[\[\]"]/g, '') || 'https://via.placeholder.com/80'} 
+                src={product.images[0]?.replace(/[\[\]"]/g, '') || 'https://placehold.co/80x80/e2e8f0/475569?text=No+Image'} 
                 alt={product.title}
                 className="w-16 h-16 object-cover rounded-xl bg-white dark:bg-gray-700 group-hover:scale-105 transition-transform"
-                onError={(e) => { (e.target as HTMLImageElement).src = 'https://via.placeholder.com/80'; }}
+                onError={(e) => { 
+                  const target = e.target as HTMLImageElement;
+                  target.onerror = () => {
+                    target.onerror = null;
+                    target.src = 'https://placehold.co/80x80/e2e8f0/475569?text=No+Image'; 
+                  };
+                  target.src = product.category.image;
+                }}
               />
               <div className="flex-1 min-w-0">
                 <p className="text-secondary text-xs font-bold uppercase tracking-wider mb-1">Related Product</p>

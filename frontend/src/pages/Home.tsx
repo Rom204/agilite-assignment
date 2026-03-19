@@ -108,7 +108,14 @@ export default function Home() {
                     src={selectedProduct.images[0]?.replace(/[\[\]"]/g, '')} 
                     alt={selectedProduct.title} 
                     className="w-10 h-10 rounded object-cover"
-                    onError={(e) => { (e.target as HTMLImageElement).src = 'https://via.placeholder.com/150'; }}
+                    onError={(e) => { 
+                      const target = e.target as HTMLImageElement;
+                      target.onerror = () => {
+                        target.onerror = null;
+                        target.src = 'https://placehold.co/150x150/e2e8f0/475569?text=No+Image'; 
+                      };
+                      target.src = selectedProduct.category.image;
+                    }}
                   />
                   <div className="font-medium text-primary">{selectedProduct.title}</div>
                 </div>

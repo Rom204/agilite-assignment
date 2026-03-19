@@ -86,7 +86,14 @@ export default function Catalog() {
                   src={product.images[0]?.replace(/[\[\]"]/g, '')} 
                   alt={product.title}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
-                  onError={(e) => { (e.target as HTMLImageElement).src = 'https://via.placeholder.com/300'; }}
+                  onError={(e) => { 
+                    const target = e.target as HTMLImageElement;
+                    target.onerror = () => {
+                      target.onerror = null;
+                      target.src = 'https://placehold.co/300x300/e2e8f0/475569?text=No+Image'; 
+                    };
+                    target.src = product.category.image;
+                  }}
                 />
                 <div className="absolute top-3 right-3 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm px-3 py-1 text-xs font-bold rounded-full text-indigo-600 shadow-sm border border-color">
                   {product.category.name}

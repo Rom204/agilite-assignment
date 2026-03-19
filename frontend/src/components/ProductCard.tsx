@@ -25,10 +25,17 @@ export default function ProductCard({ product, onClose, className = '', isCompac
       <div className={`w-full ${isCompact ? 'h-48' : 'sm:w-2/5'} relative bg-gradient-to-br from-gray-100 to-gray-50 dark:from-slate-800 dark:to-slate-900 p-8 flex items-center justify-center flex-shrink-0`}>
         <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/10 pointer-events-none" />
         <img 
-          src={product.images[0]?.replace(/[\[\]"]/g, '') || 'https://via.placeholder.com/300'} 
+          src={product.images[0]?.replace(/[\[\]"]/g, '') || 'https://placehold.co/300x300/e2e8f0/475569?text=No+Image'} 
           alt={product.title}
           className={`relative z-10 w-full ${isCompact ? 'max-h-full' : 'max-w-[200px]'} object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-500`}
-          onError={(e) => { (e.target as HTMLImageElement).src = 'https://via.placeholder.com/300'; }}
+          onError={(e) => { 
+            const target = e.target as HTMLImageElement;
+            target.onerror = () => {
+              target.onerror = null;
+              target.src = 'https://placehold.co/300x300/e2e8f0/475569?text=No+Image'; 
+            };
+            target.src = product.category.image;
+          }}
         />
         <div className="absolute top-4 left-4 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md px-3 py-1 text-xs font-bold rounded-full text-indigo-600 shadow-sm border border-color z-10 capitalize">
           {product.category.name}
