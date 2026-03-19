@@ -7,6 +7,8 @@ export type Role = 'admin' | 'customer';
 interface AuthUser {
   email: string;
   role: Role;
+  name: string;
+  picture: string;
 }
 
 interface AuthContextType {
@@ -26,7 +28,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (token) {
       try {
         const decoded = jwtDecode<AuthUser>(token);
-        setUser({ email: decoded.email, role: decoded.role });
+        setUser(decoded);
         localStorage.setItem('app_token', token);
       } catch (error) {
         console.error("Invalid token:", error);

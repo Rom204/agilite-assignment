@@ -5,11 +5,12 @@ import { useAuth } from '../context/AuthContext';
 import { API } from '../services/api';
 import type { Product } from '../services/api';
 import ProductSelectorModal from '../components/ProductSelectorModal';
-import { Loader2, PackageSearch } from 'lucide-react';
+import { Loader2, PackageSearch, ShieldAlert } from 'lucide-react';
 import { cn } from '../components/Navbar';
+import { GoogleLogin } from '@react-oauth/google';
 
 export default function Home() {
-  const { user } = useAuth();
+  const { user, login } = useAuth();
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -65,9 +66,36 @@ export default function Home() {
       </div>
 
       <div className="glass-panel rounded-3xl p-6 sm:p-10 shadow-2xl shadow-primary-900/5">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {!user ? (
+          <div className="flex flex-col items-center justify-center py-10 text-center animate-in zoom-in-95 duration-500">
+             <div className="w-20 h-20 bg-blue-100/50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-3xl flex items-center justify-center mb-6 shadow-inner ring-1 ring-blue-500/20">
+               <ShieldAlert className="w-10 h-10" />
+             </div>
+             <h3 className="text-2xl font-bold text-primary mb-3">Sign in to Create a Ticket</h3>
+             <p className="text-secondary mb-8 max-w-sm font-medium">We require users to be authenticated to submit support requests so our team can follow up with you directly.</p>
+             <div className="bg-white/50 dark:bg-slate-800/50 p-6 rounded-3xl border border-color shadow-lg flex justify-center w-full max-w-sm">
+               <GoogleLogin
+                onSuccess={async (credentialResponse) => {
+                  try {
+                    if (!credentialResponse.credential) return;
+                    const res = await API.verifyGoogleToken(credentialResponse.credential);
+                    login(res.data.token);
+                    toast.success(`Welcome back, ${res.data.user.name}!`);
+                  } catch (error) {
+                    toast.error("Failed to authenticate.");
+                  }
+                }}
+                onError={() => toast.error("Google Login Failed")}
+                useOneTap
+                theme="filled_blue"
+                shape="pill"
+              />
+             </div>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-6 animate-in fade-in duration-500 delay-150">
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label htmlFor="name" className={labelStyle}>Your Name *</label>
               <input
@@ -187,6 +215,7 @@ export default function Home() {
             </button>
           </div>
         </form>
+        )}
       </div>
 
       <ProductSelectorModal 

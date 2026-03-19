@@ -1,5 +1,6 @@
 import { Link, NavLink } from 'react-router-dom';
-import { Ticket, Search, ListTodo, Moon, Sun } from 'lucide-react';
+import { Ticket, Search, ListTodo, Moon, Sun, LogOut } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import { useEffect, useState } from 'react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -11,6 +12,7 @@ export function cn(...inputs: (string | undefined | null | false)[]) {
 
 export default function Navbar() {
   const [isDark, setIsDark] = useState(false);
+  const { user, logout } = useAuth();
 
   useEffect(() => {
     // Check initial dark mode preference
@@ -58,6 +60,25 @@ export default function Navbar() {
           </div>
 
           <div className="flex items-center space-x-4">
+            {user && (
+              <div className="flex items-center gap-3 bg-white/50 dark:bg-slate-800/50 pl-1.5 pr-4 py-1.5 rounded-full border border-color shadow-sm animate-in fade-in zoom-in-95 duration-300">
+                <img 
+                  src={user.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || user.email.split('@')[0])}&background=random`} 
+                  alt="Profile" 
+                  className="w-8 h-8 rounded-full object-cover shadow-sm bg-indigo-100"
+                />
+                <div className="flex flex-col">
+                  <span className="text-xs font-bold text-primary leading-tight max-w-[120px] truncate">
+                    {user.name || user.email.split('@')[0]}
+                  </span>
+                  <span className="text-[10px] text-secondary font-medium leading-tight tracking-wider uppercase flex justify-between items-center gap-2">
+                    {user.role} 
+                    <button onClick={logout} className="text-red-500 hover:text-red-600 dark:hover:text-red-400 capitalize hover:underline">(Logout)</button>
+                  </span>
+                </div>
+              </div>
+            )}
+
             <button
               onClick={toggleDarkMode}
               className="p-2 rounded-full hover:bg-secondary text-secondary transition-colors focus:outline-none focus:ring-2 focus:ring-primary-color focus:ring-offset-2"

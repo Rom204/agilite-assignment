@@ -32,7 +32,12 @@ router.post('/google', async (req: Request, res: Response): Promise<any> => {
     const role = email === adminEmail ? 'admin' : 'customer';
 
     // 3. Issue our own Application JWT Session
-    const jwtPayload = { email, role };
+    const jwtPayload = { 
+      email, 
+      role, 
+      name: payload.name || email.split('@')[0], 
+      picture: payload.picture || '' 
+    };
     const sessionToken = jwt.sign(jwtPayload, process.env.JWT_SECRET as string, { expiresIn: '7d' });
 
     // 4. Return Session Token and User Data
