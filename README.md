@@ -13,6 +13,20 @@ Built with **React 19, Vite, and Tailwind CSS v4** on the frontend, and secured 
 
 *Note: The frontend is configured with a smart, zero-config routing system that automatically detects Vercel preview environments and routes requests seamlessly to the assigned Staging backend (`https://agilite-assignment-1.onrender.com`).*
 
+## 🧪 Review & Evaluation Guide
+
+This application utilizes a strict, stateless JSON Web Token (JWT) architecture. To test the core functionalities, you can log in using two distinct flows:
+
+### 1. The Customer Experience (Google Sign-In)
+- Navigate to the **Home** or **Dashboard** page.
+- Click the standard **Sign in with Google** button.
+- **What happens:** You will be authenticated as a standard `Customer`. The backend generates a secure session, and your ticket management will be strictly scoped *only to tickets tied to your Google email*. 
+
+### 2. The Admin Experience (Recruiter Fast-Track)
+- Navigate to the **Home** or **Dashboard** login walls.
+- Below the Google Login button, click the **Login as Demo Admin** button (shield icon).
+- **What happens:** You bypass the Google OAuth requirement entirely. The backend instantly issues a hardcoded Administrator JWT. In this mode, you have global access to all customer tickets, the ability to leave official Support Replies, and full visualization on the Admin Analytics Pie Chart!
+
 ## ✨ Key Features
 
 - **🔐 Enterprise-Grade Authentication (Google OAuth)**
