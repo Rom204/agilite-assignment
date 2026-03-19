@@ -55,6 +55,23 @@ export default function Dashboard() {
     return tickets.filter(t => t.status === listFilter);
   }, [tickets, listFilter]);
 
+  const userTicketCounts = useMemo(() => {
+    if (role !== 'admin') return [];
+    const counts: Record<string, number> = {};
+    const filteredForAnalytics = analyticsFilter === 'all' ? tickets : tickets.filter(t => t.status === analyticsFilter);
+    filteredForAnalytics.forEach(t => {
+      const email = t.email || 'Unknown';
+      counts[email] = (counts[email] || 0) + 1;
+    });
+    return Object.entries(counts)
+      .map(([email, count]) => ({
+        name: email.split('@')[0],
+        count,
+        fullEmail: email
+      }))
+      .sort((a, b) => b.count - a.count);
+  }, [tickets, role, analyticsFilter]);
+
   if (role === 'customer' && !currentEmail) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] animate-in fade-in duration-500">
@@ -63,8 +80,8 @@ export default function Dashboard() {
           <h2 className="text-3xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-600 dark:from-blue-400 to-purple-600 dark:to-purple-400 mb-2">View Your Tickets</h2>
           <p className="text-secondary mb-8 font-medium">Please enter your email address to view the history of tickets you have opened.</p>
           <form onSubmit={(e) => { e.preventDefault(); setEmail(emailInput); }} className="space-y-4">
-            <input 
-              type="email" 
+            <input
+              type="email"
               required
               placeholder="name@example.com"
               value={emailInput}
@@ -80,23 +97,6 @@ export default function Dashboard() {
     );
   }
 
-  const userTicketCounts = useMemo(() => {
-    if (role !== 'admin') return [];
-    const counts: Record<string, number> = {};
-    const filteredForAnalytics = analyticsFilter === 'all' ? tickets : tickets.filter(t => t.status === analyticsFilter);
-    filteredForAnalytics.forEach(t => {
-      const email = t.email || 'Unknown';
-      counts[email] = (counts[email] || 0) + 1;
-    });
-    return Object.entries(counts)
-      .map(([email, count]) => ({ 
-        name: email.split('@')[0], 
-        count, 
-        fullEmail: email 
-      }))
-      .sort((a, b) => b.count - a.count);
-  }, [tickets, role, analyticsFilter]);
-
   const COLORS = ['#6366f1', '#8b5cf6', '#d946ef', '#f43f5e', '#facc15', '#10b981', '#0ea5e9'];
 
   return (
@@ -108,8 +108,8 @@ export default function Dashboard() {
         <p className="text-secondary font-medium mt-2">
           {role === 'admin' ? 'Manage customer support requests' : `Viewing tickets for ${currentEmail}`}
           {role === 'customer' && (
-            <button 
-              onClick={() => setEmail('')} 
+            <button
+              onClick={() => setEmail('')}
               className="ml-2 text-primary-color hover:underline text-sm"
             >
               (Change Email)
@@ -192,7 +192,7 @@ export default function Dashboard() {
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip 
+                <Tooltip
                   contentStyle={{ borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(15, 23, 42, 0.9)', color: '#f8fafc', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }}
                   itemStyle={{ color: '#e2e8f0', fontWeight: 'bold' }}
                   formatter={(value: any, _name: any, props: any) => [value, props.payload.fullEmail]}
