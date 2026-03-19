@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 import { API } from '../services/api';
 import type { Product } from '../services/api';
 import ProductSelectorModal from '../components/ProductSelectorModal';
-import { Loader2, PackageSearch, ShieldAlert } from 'lucide-react';
+import { Loader2, PackageSearch, ShieldAlert, Lock } from 'lucide-react';
 import { cn } from '../components/Navbar';
 import { GoogleLogin } from '@react-oauth/google';
 
@@ -22,6 +22,16 @@ export default function Home() {
     message: '',
   });
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        name: prev.name || user.name || '',
+        email: user.email
+      }));
+    }
+  }, [user]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -110,16 +120,18 @@ export default function Home() {
               />
             </div>
             <div>
-              <label htmlFor="email" className={labelStyle}>Email Address *</label>
+              <label htmlFor="email" className={labelStyle}>
+                Email Address <span className="ml-2 text-xs font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-0.5 rounded-full border border-indigo-200 dark:border-indigo-800 inline-flex items-center gap-1 shadow-sm"><Lock className="w-3 h-3" /> Verified via Google</span>
+              </label>
               <input
                 id="email"
                 name="email"
                 type="email"
                 required
+                disabled
                 value={formData.email}
-                onChange={handleChange}
-                className={inputStyle}
-                placeholder="john@example.com"
+                className={cn(inputStyle, "opacity-70 cursor-not-allowed bg-gray-50/80 dark:bg-slate-800/80 font-medium text-secondary")}
+                placeholder="you@example.com"
               />
             </div>
           </div>
