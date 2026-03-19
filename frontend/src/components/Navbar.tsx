@@ -1,5 +1,5 @@
 import { Link, NavLink } from 'react-router-dom';
-import { Ticket, Search, ListTodo, Moon, Sun, LogOut } from 'lucide-react';
+import { Ticket, Search, ListTodo, Moon, Sun } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useEffect, useState } from 'react';
 import { clsx } from 'clsx';
