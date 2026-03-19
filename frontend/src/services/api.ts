@@ -1,10 +1,11 @@
 import axios from 'axios';
 
-const BACKEND_URL = 'http://localhost:5001/api';
+// const DEVELOPMENT_BACKEND_URL = 'http://localhost:5001/api';
+const DEPLOYED_BACKEND_URL = 'https://agilite-assignment.onrender.com/api';
 const FAKE_STORE_URL = 'https://api.escuelajs.co/api/v1';
 
 export const apiClient = axios.create({
-  baseURL: BACKEND_URL,
+  baseURL: DEPLOYED_BACKEND_URL,
 });
 
 export const storeClient = axios.create({
@@ -49,7 +50,7 @@ export interface Reply {
 export const API = {
   getProducts: () => storeClient.get<Product[]>('/products'),
   getProductById: (id: number) => storeClient.get<Product>(`/products/${id}`),
-  
+
   createTicket: (data: Partial<Ticket>) => apiClient.post<Ticket>('/tickets', data),
   getTickets: (params?: { status?: string, email?: string }) => apiClient.get<Ticket[]>('/tickets', { params }),
   getTicketById: (id: string) => apiClient.get<Ticket & { replies: Reply[] }>(`/tickets/${id}`),
