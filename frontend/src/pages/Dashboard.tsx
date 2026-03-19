@@ -3,19 +3,22 @@ import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
 import { Loader2, MessageSquare, AlertCircle, CheckCircle2, UserCircle2, Ticket as TicketIcon, CircleDashed } from 'lucide-react';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../context/AuthContext';
 import { API } from '../services/api';
 import type { Ticket, Product } from '../services/api';
 import { cn } from '../components/Navbar';
 
 export default function Dashboard() {
-  const { role, email: currentEmail, setEmail } = useAuth();
+  const { user, login, logout } = useAuth();
+  const role = user?.role;
+  const currentEmail = user?.email;
+
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [products, setProducts] = useState<Record<number, Product>>({});
   const [loading, setLoading] = useState(true);
   const [listFilter, setListFilter] = useState<'all' | 'open' | 'closed'>('all');
   const [analyticsFilter, setAnalyticsFilter] = useState<'all' | 'open' | 'closed'>('all');
-  const [emailInput, setEmailInput] = useState('');
 
   useEffect(() => {
     // If customer and no email set, don't fetch yet
@@ -72,26 +75,33 @@ export default function Dashboard() {
       .sort((a, b) => b.count - a.count);
   }, [tickets, role, analyticsFilter]);
 
-  if (role === 'customer' && !currentEmail) {
+  if (!user) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] animate-in fade-in duration-500">
         <div className="glass-panel p-8 md:p-10 rounded-3xl max-w-md w-full text-center shadow-2xl shadow-primary-900/5">
-          <UserCircle2 className="w-20 h-20 text-primary-color mx-auto mb-5 drop-shadow-md" />
-          <h2 className="text-3xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-600 dark:from-blue-400 to-purple-600 dark:to-purple-400 mb-2">View Your Tickets</h2>
-          <p className="text-secondary mb-8 font-medium">Please enter your email address to view the history of tickets you have opened.</p>
-          <form onSubmit={(e) => { e.preventDefault(); setEmail(emailInput); }} className="space-y-4">
-            <input
-              type="email"
-              required
-              placeholder="name@example.com"
-              value={emailInput}
-              onChange={e => setEmailInput(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-color bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm text-primary placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-2 focus:ring-primary-color/50 focus:border-primary-color outline-none transition-all shadow-inner shadow-black/5 dark:shadow-black/20"
+          <UserCircle2 className="w-20 h-20 text-indigo-500 mx-auto mb-5 drop-shadow-md" />
+          <h2 className="text-3xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-600 dark:from-blue-400 to-purple-600 dark:to-purple-400 mb-2">Welcome Back</h2>
+          <p className="text-secondary mb-8 font-medium">Please sign in with Google to securely access your support dashboard.</p>
+          
+          <div className="flex justify-center">
+            <GoogleLogin
+              onSuccess={async (credentialResponse) => {
+                try {
+                  if (!credentialResponse.credential) return;
+                  const res = await API.verifyGoogleToken(credentialResponse.credential);
+                  login(res.data.token);
+                } catch (error) {
+                  console.error("Auth Error:", error);
+                }
+              }}
+              onError={() => {
+                console.error("Google Login Failed");
+              }}
+              useOneTap
+              theme="filled_blue"
+              shape="pill"
             />
-            <button type="submit" className="w-full bg-primary-color hover:bg-primary-hover text-white py-3 rounded-xl font-medium transition-colors">
-              Continue
-            </button>
-          </form>
+          </div>
         </div>
       </div>
     );
@@ -107,14 +117,12 @@ export default function Dashboard() {
         </h1>
         <p className="text-secondary font-medium mt-2">
           {role === 'admin' ? 'Manage customer support requests' : `Viewing tickets for ${currentEmail}`}
-          {role === 'customer' && (
-            <button
-              onClick={() => setEmail('')}
-              className="ml-2 text-primary-color hover:underline text-sm"
-            >
-              (Change Email)
-            </button>
-          )}
+          <button
+            onClick={() => logout()}
+            className="ml-3 font-semibold text-primary-color hover:underline text-sm"
+          >
+            Sign Out
+          </button>
         </p>
       </div>
 

@@ -1,13 +1,15 @@
 import { Request, Response } from 'express';
 import { prisma } from '../lib/prisma';
+import { AuthRequest } from '../middleware/auth';
 
 /**
  * @desc    Create a new support ticket
  * @route   POST /api/tickets
  */
-export const createTicket = async (req: Request, res: Response) => {
+export const createTicket = async (req: AuthRequest, res: Response) => {
   try {
-    const { name, email, subject, message, productId } = req.body;
+    const { name, subject, message, productId } = req.body;
+    const email = req.user?.email || '';
 
     // 1. Basic Validation (Senior tip: check for missing fields early)
     if (!name || !email || !subject || !message || !productId) {
@@ -36,12 +38,18 @@ export const createTicket = async (req: Request, res: Response) => {
  * @desc    Get all tickets (for Admin Dashboard)
  * @route   GET /api/tickets
  */
-export const getAllTickets = async (req: Request, res: Response) => {
+export const getAllTickets = async (req: AuthRequest, res: Response) => {
   try {
     const { status, email } = req.query;
     const whereClause: any = {};
     if (status) whereClause.status = String(status);
-    if (email) whereClause.email = String(email);
+    
+    // Security: Customers can ONLY see their own tickets
+    if (req.user?.role === 'customer') {
+      whereClause.email = req.user.email;
+    } else if (email) {
+      whereClause.email = String(email);
+    }
 
     const tickets = await prisma.ticket.findMany({
       where: whereClause,
@@ -64,7 +72,7 @@ export const getAllTickets = async (req: Request, res: Response) => {
  * @desc    Get a single ticket with all its replies
  * @route   GET /api/tickets/:id
  */
-export const getTicketById = async (req: Request, res: Response) => {
+export const getTicketById = async (req: AuthRequest, res: Response): Promise<any> => {
   try {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
 
@@ -81,6 +89,11 @@ export const getTicketById = async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Ticket not found" });
     }
 
+    // Security Check: Customers can only open their own tickets
+    if (req.user?.role === 'customer' && ticket.email !== req.user.email) {
+      return res.status(403).json({ error: "Access denied: Unauthorized ticket" });
+    }
+
     return res.json(ticket);
   } catch (error) {
     console.error("Error fetching ticket details:", error);
@@ -92,10 +105,10 @@ export const getTicketById = async (req: Request, res: Response) => {
  * @desc    Add a reply to a specific ticket
  * @route   POST /api/tickets/:id/replies
  */
-export const addReply = async (req: Request, res: Response) => {
+export const addReply = async (req: AuthRequest, res: Response): Promise<any> => {
   try {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-    const { message, isAdmin } = req.body;
+    const { message } = req.body;
 
     // 1. Validation: Don't allow empty messages
     if (!message || message.trim() === "") {
@@ -108,11 +121,16 @@ export const addReply = async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Cannot reply to a non-existent ticket" });
     }
 
+    // Security Check: Customers can only reply to their own tickets
+    if (req.user?.role === 'customer' && ticketExists.email !== req.user.email) {
+      return res.status(403).json({ error: "Access denied: Unauthorized ticket" });
+    }
+
     // 3. Create the Reply and link it to the Ticket
     const reply = await prisma.reply.create({
       data: {
         message,
-        isAdmin: isAdmin || false, // Defaults to customer (false)
+        isAdmin: req.user?.role === 'admin', // Native secure role extraction
         ticketId: id,
       },
     });
@@ -124,9 +142,20 @@ export const addReply = async (req: Request, res: Response) => {
   }
 };
 
-export const closeTicket = async (req: Request, res: Response) => {
+export const closeTicket = async (req: AuthRequest, res: Response): Promise<any> => {
   try {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    
+    const ticketExists = await prisma.ticket.findUnique({ where: { id } });
+    if (!ticketExists) {
+      return res.status(404).json({ error: "Ticket not found" });
+    }
+
+    // Security Check
+    if (req.user?.role === 'customer' && ticketExists.email !== req.user.email) {
+      return res.status(403).json({ error: "Access denied: Unauthorized ticket" });
+    }
+
     const ticket = await prisma.ticket.update({
       where: { id },
       data: { status: "closed" }

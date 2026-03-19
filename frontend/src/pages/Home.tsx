@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 import { API } from '../services/api';
@@ -8,7 +9,8 @@ import { Loader2, PackageSearch } from 'lucide-react';
 import { cn } from '../components/Navbar';
 
 export default function Home() {
-  const { setEmail } = useAuth();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   
@@ -36,8 +38,11 @@ export default function Home() {
       await API.createTicket({ ...formData, productId: selectedProduct.id });
       toast.success('Ticket created successfully!');
       
-      // Save customer email for Dashboard view
-      setEmail(formData.email);
+      // Navigate to dashboard if they are logged in and view their tickets
+      if (user && formData.email === user.email) {
+        navigate('/dashboard');
+        return;
+      }
       
       // Reset form
       setFormData({ name: '', email: '', subject: '', message: '' });

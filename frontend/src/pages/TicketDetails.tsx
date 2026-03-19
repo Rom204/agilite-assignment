@@ -12,7 +12,8 @@ import ProductCard from '../components/ProductCard';
 export default function TicketDetails() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { role } = useAuth();
+  const { user } = useAuth();
+  const role = user?.role;
   
   const [ticket, setTicket] = useState<(Ticket & { replies: Reply[] }) | null>(null);
   const [product, setProduct] = useState<Product | null>(null);
@@ -82,6 +83,21 @@ export default function TicketDetails() {
       setClosingTicket(false);
     }
   };
+
+  if (!user) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[50vh] animate-in fade-in duration-500">
+        <div className="glass-panel p-8 rounded-3xl max-w-md w-full text-center shadow-2xl">
+          <ShieldAlert className="w-16 h-16 text-primary-color mx-auto mb-5 drop-shadow-md" />
+          <h2 className="text-2xl font-bold mb-2">Authentication Required</h2>
+          <p className="text-secondary mb-6">You must be signed in to view ticket details.</p>
+          <button onClick={() => navigate('/dashboard')} className="w-full bg-primary-color hover:bg-primary-hover text-white py-3 rounded-xl font-medium transition-colors">
+            Go to Login
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (

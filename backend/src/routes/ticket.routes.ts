@@ -1,12 +1,16 @@
 import { Router } from 'express';
 import * as TicketController from '../controllers/ticket.controller';
+import { authenticate } from '../middleware/auth';
 
 const router = Router();
+
+// Secure all ticket routes with the authentication middleware
+router.use(authenticate);
 
 // 1. Create a new ticket
 router.post('/', TicketController.createTicket);
 
-// 2. Get all tickets (Admin view)
+// 2. Get all tickets (Filters natively handled in the controller based on role)
 router.get('/', TicketController.getAllTickets);
 
 // 3. Get a specific ticket + its conversation

@@ -1,36 +1,53 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
+import { jwtDecode } from 'jwt-decode';
 
-type Role = 'admin' | 'customer';
+export type Role = 'admin' | 'customer';
+
+interface AuthUser {
+  email: string;
+  role: Role;
+}
 
 interface AuthContextType {
-  role: Role;
-  setRole: (role: Role) => void;
-  email: string;
-  setEmail: (email: string) => void;
+  token: string | null;
+  user: AuthUser | null;
+  login: (token: string) => void;
+  logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [role, setRole] = useState<Role>(() => {
-    return (localStorage.getItem('app_role') as Role) || 'customer';
-  });
-  
-  const [email, setEmail] = useState<string>(() => {
-    return localStorage.getItem('app_email') || '';
-  });
+  const [token, setToken] = useState<string | null>(() => localStorage.getItem('app_token'));
+  const [user, setUser] = useState<AuthUser | null>(null);
 
   useEffect(() => {
-    localStorage.setItem('app_role', role);
-  }, [role]);
+    if (token) {
+      try {
+        const decoded = jwtDecode<AuthUser>(token);
+        setUser({ email: decoded.email, role: decoded.role });
+        localStorage.setItem('app_token', token);
+      } catch (error) {
+        console.error("Invalid token:", error);
+        logout();
+      }
+    } else {
+      setUser(null);
+      localStorage.removeItem('app_token');
+    }
+  }, [token]);
 
-  useEffect(() => {
-    localStorage.setItem('app_email', email);
-  }, [email]);
+  const login = (newToken: string) => {
+    setToken(newToken);
+  };
+
+  const logout = () => {
+    setToken(null);
+  };
 
   return (
-    <AuthContext.Provider value={{ role, setRole, email, setEmail }}>
+    <AuthContext.Provider value={{ token, user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

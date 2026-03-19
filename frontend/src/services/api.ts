@@ -8,6 +8,14 @@ export const apiClient = axios.create({
   baseURL: import.meta.env.PROD ? DEPLOYED_BACKEND_URL : DEVELOPMENT_BACKEND_URL,
 });
 
+apiClient.interceptors.request.use((config) => {
+  const token = localStorage.getItem('app_token');
+  if (token && config.headers) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 export const storeClient = axios.create({
   baseURL: FAKE_STORE_URL,
 });
@@ -48,6 +56,8 @@ export interface Reply {
 }
 
 export const API = {
+  verifyGoogleToken: (credential: string) => apiClient.post<{ token: string; user: any }>('/auth/google', { credential }),
+
   getProducts: () => storeClient.get<Product[]>('/products'),
   getProductById: (id: number) => storeClient.get<Product>(`/products/${id}`),
 
