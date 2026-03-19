@@ -2,10 +2,25 @@ import axios from 'axios';
 
 const DEVELOPMENT_BACKEND_URL = 'http://localhost:5001/api';
 const DEPLOYED_BACKEND_URL = 'https://agilite-assignment.onrender.com/api';
+// We will route here if "dev" is in the Vercel URL! Feel free to update this:
+const STAGING_BACKEND_URL = 'https://agilite-assignment-1.onrender.com/api'; 
 const FAKE_STORE_URL = 'https://api.escuelajs.co/api/v1';
 
+const getBackendUrl = () => {
+  // 1. Highest Priority: Explicit Vercel Environment Variables Configuration
+  if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
+  
+  // 2. Automatic Branch Detection via Hostname (Catching the "-dev" URL you shared!)
+  if (typeof window !== 'undefined' && window.location.hostname.includes('-dev')) {
+    return STAGING_BACKEND_URL;
+  }
+  
+  // 3. Standard Fallbacks
+  return import.meta.env.PROD ? DEPLOYED_BACKEND_URL : DEVELOPMENT_BACKEND_URL;
+};
+
 export const apiClient = axios.create({
-  baseURL: import.meta.env.PROD ? DEPLOYED_BACKEND_URL : DEVELOPMENT_BACKEND_URL,
+  baseURL: getBackendUrl(),
 });
 
 apiClient.interceptors.request.use((config) => {
