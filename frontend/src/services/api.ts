@@ -1,11 +1,11 @@
 import axios from 'axios';
 
-// const DEVELOPMENT_BACKEND_URL = 'http://localhost:5001/api';
+const DEVELOPMENT_BACKEND_URL = 'http://localhost:5001/api';
 const DEPLOYED_BACKEND_URL = 'https://agilite-assignment.onrender.com/api';
 const FAKE_STORE_URL = 'https://api.escuelajs.co/api/v1';
 
 export const apiClient = axios.create({
-  baseURL: DEPLOYED_BACKEND_URL,
+  baseURL: import.meta.env.PROD ? DEPLOYED_BACKEND_URL : DEVELOPMENT_BACKEND_URL,
 });
 
 export const storeClient = axios.create({
