@@ -1,7 +1,7 @@
 import "dotenv/config";
-import { prisma } from "./lib/prisma";
+import { prisma } from "../../src/lib/prisma";
 
-// run "npx tsx src/sample.ts" from the backend directory to execute this script and create a sample ticket in the database. Make sure your database is running and properly configured in your .env file before executing this script.
+// run "npx tsx tests/database/sample.ts" from the backend directory to execute this script and create a sample ticket in the database. Make sure your database is running and properly configured in your .env file before executing this script.
 async function main() {
   // Create a sample ticket
   const sampleTicket = await prisma.ticket.create({
